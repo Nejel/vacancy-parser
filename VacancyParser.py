@@ -4,7 +4,7 @@ import docx
 import re
 import os
 import csv
-
+import itertools
 
 cwd = os.getcwd() + '\\'
 filename = 'results.csv'
@@ -15,7 +15,7 @@ def Search(fullText): # функция поиска по тексту. Вызы�
     #print('Search', fullText)
     findURL = re.findall('https://\S+|http://\S+', str(fullText), flags = 0)
     #print('SearchURL', findURL)
-    findRecruit = re.findall('Таня|Валя|Никита|Даша Мелкова|[А-Я][а-я]\S+ [А-Я][а-я]\S+\bЛаборатория \b', str(fullText), flags = 0)
+    findRecruit = re.findall('Таня|Валя|Никита|Даша|[А-Я][а-я]\S+ [А-Я][а-я]\S+\bЛаборатория \b', str(fullText), flags = 0)
     #print('Searchrecruit', findRecruit)
     finddescription = re.findall('У нас \S+|Тут \S+|Описание .+', str(fullText), flags = 0)
     searchresults = findURL, findRecruit, finddescription
@@ -51,7 +51,9 @@ def ReadFolderAndFiles(content):
 
 ReadFolderAndFiles(content) # вызываем функцию с параметром, чтобы вернуть значение
 
+
 with open(filename, 'a', encoding='utf8', newline = '') as file: #готовим файл к записи в utf-8
-    writer = csv.writer(file, delimiter=',', quotechar='"')
+    #writer = csv.writer(file, delimiter=',', quotechar='"')
+    writer = csv.writer(file)
     #print(dir(writer))
     writer.writerows(content) # пишем в файл из глобальной переменной контент
