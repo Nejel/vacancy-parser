@@ -1,9 +1,9 @@
 # coding=utf-8
-import openpyxl
-import os
+#import openpyxl
+#import os
+#import stat
+#import bs4
 import selenium
-import stat
-import bs4
 import time
 import requests
 import re
@@ -34,7 +34,7 @@ def URLBuilder():
 def Replacer():
     global text
     global replaced
-    #global replacedtext
+    global replacedtext
     #Находим ключевые места по регуляркам
     #первый абзац
     replaced = re.sub('это 4 000 экспертов', 'это 4&nbsp;000 экспертов', text)
@@ -55,25 +55,41 @@ def Replacer():
     replaced = re.sub('Необходимый опыт:', '</p><br></ul><h3>Необходимый опыт:</h3><ul>', replaced)
     replaced = re.sub('Чего мы ждем:', '</p><br></ul><h3>Чего мы ждем:</h3><ul>', replaced)
     replaced = re.sub('Желательно, но не обязательно:', '</ul><h3>Желательно, но не обязательно:</h3><br><ul>', replaced)
+    replaced = re.sub('Очень желательно:', '</ul><h3>Очень желательно:</h3><br><ul>', replaced)
+    replaced = re.sub('Необходимые знания и навыки:', '</ul><h3>Необходимые знания и навыки:</h3><br><ul>', replaced)
     replaced = re.sub('Плюсом будет:', '</ul><h3>Плюсом будет:</h3><ul>', replaced)
     replaced = re.sub('Будет плюсом:', '</ul><h3>Будет плюсом:</h3><ul>', replaced)
-    replaced = re.sub('Мы ожидаем:', '</ul><h3>Мы ожидаем:</h3><br><ul>', replaced)
-    replaced = re.sub('Ключевые задачи:', '<h3>Ключевые задачи:</h3><ul>', replaced)
-    replaced = re.sub('Требования:', '<br></ul><h3>Требования:</h3><ul>', replaced)
-    replaced = re.sub('Нужно уметь:', '</ul><h3>Нужно уметь</h3><ul>', replaced)
+    replaced = re.sub('Требования к кандидату:', '</ul><h3>Требования к кандидату:</h3><ul>', replaced)
+    replaced = re.sub('Мы ожидаем:', '<br></ul><h3>Мы ожидаем:</h3><ul>', replaced)
+    replaced = re.sub('Основные функции и задачи:', '<br></ul><h3>Основные функции и задачи:</h3><ul>', replaced)
+    replaced = re.sub('Основные задачи:', '<br></ul><h3>Основные задачи:</h3><ul>', replaced)
+    replaced = re.sub('Мастхэв:', '<br></ul><h3>Мастхэв:</h3><ul>', replaced)
+    replaced = re.sub('Проект: ', '<br></ul><h3>Проект: </h3><ul>', replaced)
+    replaced = re.sub('Ключевые задачи:', '<br></ul><h3>Ключевые задачи:</h3><br><ul>', replaced)
+    replaced = re.sub('Задачи:', '<br></ul><h3>Задачи:</h3><br><ul>', replaced)
+    replaced = re.sub('Твои задачи:', '<br></ul><h3>Твои задачи:</h3><br><ul>', replaced)
+    replaced = re.sub('В твоих обязанностях будет:', '<br></ul><h3>В твоих обязанностях будет:</h3><br><ul>', replaced)
+    replaced = re.sub('Требования:', '<br></ul><h3>Требования:</h3><br><ul>', replaced)
+    replaced = re.sub('Нужно уметь:', '<br></ul><h3>Нужно уметь</h3><br><ul>', replaced)
     replaced = re.sub('Не обязательно, но будет плюсом:', '</ul><h3>Не обязательно, но будет плюсом:</h3><br><ul>', replaced)
-    replaced = re.sub('Желательно:', '</ul><h3>Желательно:</h3><br><ul>', replaced)
+    replaced = re.sub('Желательно:', '<br></ul><h3>Желательно:</h3><br><ul>', replaced)
     #основной текст
     replaced = re.sub('"21 год на рынке', '<p>21 год на рынке', replaced)
+    replaced = re.sub('"Ты можешь спасать', '<p>Ты можешь спасать', replaced)
     replaced = re.sub('"О нас в цифрах:', '<p>О нас в цифрах:', replaced)
-    replaced = re.sub('• ', '	<li>', replaced)
+    replaced = re.sub('" О нас в цифрах:', '<p>О нас в цифрах:', replaced)
+    replaced = re.sub('"  О нас в цифрах:', '<p>О нас в цифрах:', replaced)
+    replaced = re.sub('• ', '<li>', replaced)
     #replaced = re.sub('<br>\n', '</li>', replaced)
     replaced = re.sub('мес"', 'мес', replaced)
     replaced = re.sub('--', '—', replaced)
     #завершающие фразы
     replaced = re.sub('Программа релокации для будущих сотрудников и их семей"', 'Программа релокации для будущих сотрудников и их семей<br><br>', replaced)
+    replaced = re.sub('Компенсации питания"', 'Компенсации питания', replaced)
     replaced = re.sub('Унылых коллег"', 'Унылых коллег', replaced)
     replaced = re.sub('унылых коллег"', 'Унылых коллег', replaced)
+    replaced = re.sub('устаревшие технологии"', 'устаревшие технологии', replaced)
+    replaced = re.sub('устаревшие технологии "', 'устаревшие технологии', replaced)
     replaced = re.sub('вы наверняка слышали!"', 'вы наверняка слышали!', replaced)
     replaced = re.sub('вы, наверняка, слышали!"', 'вы, наверняка, слышали!', replaced)
     # тут такая проблема, похоже что если тег ul не открыть и начать фигачить li -- то всё это дело вылетает из админки, рандомно нажимая все клавиши внизу страницы
@@ -83,16 +99,23 @@ def Replacer():
 def ReplacedTextPutin():
     global text
     global driver
-    time.sleep(5)
+    #global replacedtext
+    time.sleep(2)
     sendctrla = driver.find_element_by_xpath('//*[@id="bxed_DETAIL_TEXT"]').send_keys(Keys.CONTROL, "a")
-    time.sleep(1)
+    time.sleep(0.5)
     senddelete = driver.find_element_by_xpath('//*[@id="bxed_DETAIL_TEXT"]').send_keys(Keys.DELETE)
     time.sleep(0.3)
+    print('Сейчас я вставлю: ', replacedtext)
+    pastetext = driver.find_element_by_id('bxed_DETAIL_TEXT').send_keys(replacedtext)
+    print('I tried')
+    print('And it feels like I succed')
+    #input('Continue?')
+    #driver.find_element_by_css_selector('#btn_list > span.adm-detail-toolbar-btn-text').click()
     #pastetext = driver.find_element_by_css_selector('#bxed_DETAIL_TEXT').send_keys(replacedtext)
-    time.sleep(1)
-    pastetextnew = driver.execute_script(document.find_element_by_css_selector('#bxed_DETAIL_TEXT')[0].click())
-    #driver.find_element_by_css_selector('#save').click()
-    time.sleep(2)
+    time.sleep(0.6)
+    #pastetextnew = driver.execute_script(document.find_element_by_css_selector('#bxed_DETAIL_TEXT')[0].click())
+    driver.find_element_by_css_selector('#save').click()
+    #time.sleep(2)
 
 def GetVacancy():
     global text
@@ -108,7 +131,7 @@ def GetVacancy():
     HTMLbutton.click()
     time.sleep(2)
     textonsite = driver.find_element_by_css_selector("#bxed_DETAIL_TEXT").text
-    text = ('\'\'\'' + textonsite + '\'\'\'')
+    text = ('' + textonsite + '')
     Replacer()
     ReplacedTextPutin()
 
